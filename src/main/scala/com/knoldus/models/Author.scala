@@ -1,7 +1,13 @@
 package com.knoldus.models
 
-case class Author(id: Integer,
+import play.api.libs.json.Json
+
+case class Author(id: Int,
                   firstName: String,
                   lastName: String,
                   gender: String,
                   emailId: String)
+
+object Author {
+  implicit val authorParser = Json.format[Author]
+}
