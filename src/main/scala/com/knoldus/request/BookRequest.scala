@@ -3,8 +3,8 @@ package com.knoldus.request
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.server.Directives.{complete, path, pathPrefix}
+import akka.http.scaladsl.server.{Directives, Route}
 import com.knoldus.implement.book.BookImplementation
 import com.knoldus.models.Book
 import com.knoldus.validator.BookValidator
@@ -45,21 +45,35 @@ object BookLet extends App {
         |""".stripMargin
     }.as[Book]
   )
-  val newListOfBook = listOfBooks.flatMap(book => bookImplementation.create(book)).flatten
 
-  private val route =
-    pathPrefix("api") {
-      Directives.get {
-        path("books") {
-          complete(StatusCodes.OK, s"${newListOfBook}")
-        }
+  val route: Route = {
+    Directives.get {
+      pathPrefix("api-books") {
+        Directives.concat(
+          path("create") {
+            complete(StatusCodes.OK, s"${listOfBooks.flatMap(book => bookImplementation.create(book)).flatten}")
+          },
+          path("books") {
+            complete(StatusCodes.OK, s"${bookImplementation.getAll()}")
+          },
+          path("book") {
+            complete(StatusCodes.OK, s"${bookImplementation.get(2002)}")
+          },
+          path("delete") {
+            complete(StatusCodes.OK, s"${bookImplementation.delete(2001)}")
+          },
+          path("put") {
+            complete(StatusCodes.OK, s"${bookImplementation.put(Book(2002, "Scala Advance", 400, 212121, 102))}")
+          }
+        )
       }
     }
+  }
 
   private val bindingFuture = Http().newServerAt(host, port).bindFlow(route)
   bindingFuture.onComplete {
-    case Success(value) =>
-      println(s"Server is listening on http://$host:${port}/api/books")
+    case Success(_) =>
+      println(s"Server is listening on http://$host:$port/api-books")
     case Failure(exception) =>
       println(s"Failure :$exception")
       system.terminate()

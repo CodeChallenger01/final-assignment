@@ -1,6 +1,6 @@
 package com.knoldus.implement.book
 
-import com.knoldus.models.Book
+import com.knoldus.models._
 import com.knoldus.validator.BookValidator
 
 import scala.collection.mutable.ListBuffer
@@ -8,15 +8,15 @@ import scala.collection.mutable.ListBuffer
 class BookImplementation(titleValidate: BookValidator) extends BookRepo {
   private val listOfBook: ListBuffer[Book] = ListBuffer[Book]().empty
 
-  override def create(book: Book): Option[List[Book]] = {
+  override def create(book: Book): Either[Error, List[Book]] = {
     if (titleValidate.isBookValidated(book)) {
       val check = listOfBook.find(list => list.id == book.id)
       check match {
-        case Some(_) => None
-        case None => Some((listOfBook += book).toList)
+        case Some(_) => Left(AlreadyExist("Having similar book ID, Cannot create new Book"))
+        case None => Right((listOfBook += book).toList)
       }
     }
-    else None
+    else Left(NotValidated("Book length is more than 20 characters"))
 
   }
 
@@ -24,8 +24,9 @@ class BookImplementation(titleValidate: BookValidator) extends BookRepo {
     listOfBook.find(list => list.id == id)
   }
 
-  def getAll(): Option[List[Book]] = {
-    Some(listOfBook.toList)
+  override def getAll(): Either[Error, List[Book]] = {
+    if (listOfBook.isEmpty) Left(EmptyList("List of Book is Empty"))
+    else Right(listOfBook.toList)
   }
 
   override def put(book: Book): Either[Error, Unit] = {
@@ -37,7 +38,7 @@ class BookImplementation(titleValidate: BookValidator) extends BookRepo {
           else list
         }
         Right(println("Updated"))
-      case None => Left(throw new Exception("Error"))
+      case None => Left(IdMisMatch("The Book ID is not similar to exist Book ID"))
     }
   }
 
@@ -52,10 +53,11 @@ class BookImplementation(titleValidate: BookValidator) extends BookRepo {
 
 //object MainApplication extends App {
 //  val book = Book(1212, "Scala Fundamentals", 230, 21431232, 101)
-//  val newBook = book.copy(1212, "Java", 5000)
+//  val newBook = book.copy(112, "Java", 5000)
 //  val createBook = new BookImplementation(new BookValidator)
-//
-//  val result = createBook.create(newBook)
+//  createBook.create(book)
+//  createBook.create(newBook)
+//  val result = createBook.delete(1212)
 //  println(result)
 //
 //}

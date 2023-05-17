@@ -1,13 +1,13 @@
 package com.knoldus.implement.book
 
-import com.knoldus.models.Book
+import com.knoldus.models.{Book, Error}
 
 trait BookRepo {
-  def create(book: Book): Option[List[Book]]
+  def create(book: Book): Either[Error, List[Book]]
 
   def get(id: Int): Option[Book]
 
-  def getAll(): Option[List[Book]]
+  def getAll(): Either[Error, List[Book]]
 
   def put(book: Book): Either[Error, Unit]
 
