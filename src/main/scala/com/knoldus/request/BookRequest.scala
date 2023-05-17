@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 
 import scala.util.{Failure, Success}
 
-object BookLet extends App {
+object BookRequest extends App {
   private val host = "localhost"
   private val port = 8083
   implicit val system = ActorSystem("HTTP_SERVER")
@@ -50,19 +50,19 @@ object BookLet extends App {
     Directives.get {
       pathPrefix("api-books") {
         Directives.concat(
-          path("create") {
-            complete(StatusCodes.OK, s"${listOfBooks.flatMap(book => bookImplementation.create(book)).flatten}")
+          path("create-book") {
+            complete(StatusCodes.OK, s"${listOfBooks.map(book => bookImplementation.create(book))}")
           },
-          path("books") {
+          path("view-books") {
             complete(StatusCodes.OK, s"${bookImplementation.getAll()}")
           },
-          path("book") {
+          path("view-book") {
             complete(StatusCodes.OK, s"${bookImplementation.get(2002)}")
           },
-          path("delete") {
+          path("delete-book") {
             complete(StatusCodes.OK, s"${bookImplementation.delete(2001)}")
           },
-          path("put") {
+          path("update-book") {
             complete(StatusCodes.OK, s"${bookImplementation.put(Book(2002, "Scala Advance", 400, 212121, 102))}")
           }
         )
