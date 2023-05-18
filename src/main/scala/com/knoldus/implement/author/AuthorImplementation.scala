@@ -10,7 +10,7 @@ class AuthorImplementation(authorValidator: AuthorValidator) extends AuthorRepo 
 
   override def create(author: Author): Either[Error, List[Author]] = {
     if (authorValidator.isAuthorValidated(author)) {
-      val check = listOfAuthor.find(list => list.id == author.id)
+      val check = listOfAuthor.find(list => list.id == author.id || (list.firstName + list.lastName) == (author.firstName + author.lastName))
       check match {
         case Some(_) => Left(AlreadyExist("Having similar author ID, cannot create new Author"))
         case None => Right((listOfAuthor += author).toList)
