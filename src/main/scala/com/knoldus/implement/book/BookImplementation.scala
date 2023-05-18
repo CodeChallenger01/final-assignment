@@ -13,7 +13,8 @@ class BookImplementation(titleValidate: BookValidator) extends BookRepo {
       val check = listOfBook.find(list => list.id == book.id)
       check match {
         case Some(_) => Left(AlreadyExist("Having similar book ID, Cannot create new Book"))
-        case None => Right((listOfBook += book).toList)
+        case None =>
+          Right((listOfBook+=book).toList)
       }
     }
     else Left(NotValidated("Book length is more than 20 characters"))
